@@ -73,34 +73,17 @@ class HotelList extends Widget_Base {
 				'label'   => __( 'Filter By Country', 'plugin-domain' ),
 				'type'    => \Elementor\Controls_Manager::SELECT,
 				'default' => '0',
-				'options' => whbmt_get_hotel_term_list_by_meta( 'hotel_country' ),
+				'options' => whbmt_get_hotel_term_list_by_meta( 'country' ),
 			]
 		);
-		$this->add_control(
-			'hotel_filter_by_hotel',
-			[
-				'label'   => __( 'Filter By Hotel', 'plugin-domain' ),
-				'type'    => \Elementor\Controls_Manager::SELECT,
-				'default' => '0',
-				'options' => whbmt_get_hotel_term_list_by_meta( 'hotel_details' ),
-			]
-		);
+
 		$this->add_control(
 			'hotel_filter_by_hotel_type',
 			[
 				'label'   => __( 'Filter By Hotel Type', 'plugin-domain' ),
 				'type'    => \Elementor\Controls_Manager::SELECT,
 				'default' => '0',
-				'options' => whbmt_get_hotel_term_list_by_meta( 'hotel_type' ),
-			]
-		);
-		$this->add_control(
-			'hotel_filter_by_package',
-			[
-				'label'   => __( 'Filter By Package', 'plugin-domain' ),
-				'type'    => \Elementor\Controls_Manager::SELECT,
-				'default' => '0',
-				'options' => whbmt_get_hotel_term_list_by_meta( 'hotel_pakage_types' ),
+				'options' => whbmt_get_tour_term_list_by_tax( 'mage_hotel_type' ),
 			]
 		);
 		/*$this->add_control(
@@ -452,37 +435,26 @@ class HotelList extends Widget_Base {
                         <div class="title text-left">
                             <h2 <?php echo $this->get_render_attribute_string( 'title' ); ?>><?php echo $settings['title']; ?></h2>
                             <p <?php echo $this->get_render_attribute_string( 'description' ); ?>><?php echo $settings['description']; ?></p>
+							<?php //echo $settings['hotel_filter_by_city'];?>
                         </div>
                     </div>
                 </div>
 
                 <div class="row">
-                    <?php
+					<?php
+
+					$city_filter = $settings['hotel_filter_by_city'] == 0 ? array(
+						'key'     => 'city',
+						'value'   => $settings['hotel_filter_by_city'],
+						'compare' => 'LIKE'
+					) : '';
+
+					//print_r($city_filter);
+
 					$country_filter = $settings['hotel_filter_by_country'] && $settings['hotel_filter_by_country'] > 0 ? array(
-						'taxonomy' => 'hotel_country',
-						'field'    => 'term_id',
-						'terms'    => $settings['hotel_filter_by_country']
-					) : '';
-
-
-					$hotel_filter = $settings['hotel_filter_by_hotel'] && $settings['hotel_filter_by_hotel'] > 0 ? array(
-						'taxonomy' => 'hotel_details',
-						'field'    => 'term_id',
-						'terms'    => $settings['hotel_filter_by_hotel']
-					) : '';
-
-
-					$hotel_type = $settings['hotel_filter_by_hotel_type'] && $settings['hotel_filter_by_hotel_type'] > 0 ? array(
-						'taxonomy' => 'hotel_type',
-						'field'    => 'term_id',
-						'terms'    => $settings['hotel_filter_by_hotel_type']
-					) : '';
-
-
-					$hotel_package = $settings['hotel_filter_by_package'] && $settings['hotel_filter_by_package'] > 0 ? array(
-						'taxonomy' => 'hotel_pakage_types',
-						'field'    => 'term_id',
-						'terms'    => $settings['hotel_filter_by_package']
+						'key' => 'country',
+						'value'    => $settings['hotel_filter_by_country'],
+						'compare' => 'LIKE'
 					) : '';
 
 
@@ -498,83 +470,94 @@ class HotelList extends Widget_Base {
 
 					$paged = get_query_var( "paged" ) ? get_query_var( "paged" ) : 1;
 
-					if ($settings['hotel_filter_by_city'] == 0){
-						$args  = array(
+					if ( $settings['hotel_filter_by_city'] == 'all' ) {
+						$args = array(
 							'post_type'      => 'mage_hotel',
-							'paged'          => $paged,
-							'posts_per_page' => $show,
+							'posts_per_page' => -1,
 						);
-
-					}else{
-						$args  = array(
+					} else {
+						$args = array(
 							'post_type'      => 'mage_hotel',
 							'paged'          => $paged,
 							'posts_per_page' => $show,
 							'meta_query'     => array(
-								$settings['hotel_filter_by_city']
-							)
-							/*'tax_query'      => array(
-								$country_filter,
-								$hotel_filter,
-								$hotel_type,
-								$hotel_package,
-								$hotel_type
-							)*/
+								'relation' => 'AND',
+								array(
+									'key'     => 'city',
+									'value'   => $settings['hotel_filter_by_city'],
+									'compare' => 'LIKE'
+                                ),
+                                array(
+	                                'key' => 'country',
+	                                'value'    => $settings['hotel_filter_by_country'],
+	                                'compare' => 'LIKE'
+                                )
+							),
+                            'tax_query'         => array(
+							$city_filter,
+							$country_filter,
+							$hotel_filter,
+							$hotel_type,
+							$hotel_package,
+							$tour_type
+						)
 						);
 					}
 
 
 					$q            = new \WP_Query( $args );
 					$count_result = $q->post_count;
-                    if ( $count_result > 0 ){
-                        while ( $q->have_posts() ) {
-                            $q->the_post();
-                            ?>
-                            <div class="col-md-3 col-sm-4">
+					if ( $count_result > 0 ){
+					foreach ( $q->posts as $post ) {
+						?>
+                        <div class="col-md-3 col-sm-4">
 
-                                <div class="whbmt_single_hotel_room">
-                                    <div class="whbmt_single_hotel_room_image">
-                                        <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail( 'large' ); ?></a>
-                                    </div>
-                                    <div class="whbmt_hotel_room_content">
-                                        <a href="<?php the_permalink(); ?>"><h4><?php the_title(); ?></h4></a>
-	                                    <?php
-	                                    $curr_args        = array(
-		                                    'ex_tax_label' => false,
-		                                    'currency'     => ''
-	                                    );
-	                                    $min_price_starts = get_post_meta( get_the_ID(), 'min_price_starts', true );
-	                                    ?>
-	                                    <?php echo '<span>Price Starts From</span> ' . wc_price( $min_price_starts, $curr_args ) ?>
-                                        <a href="<?php the_permalink(); ?>"><button class=" btn btn-default main_btn">Book Now</button></a>
-                                    </div>
+                            <div class="whbmt_single_hotel_room">
+                                <div class="whbmt_single_hotel_room_image">
+                                    <a href="<?php echo get_permalink( $post->ID ); ?>"><?php echo get_the_post_thumbnail
+										( $post->ID, 'large' ); ?></a>
+                                </div>
+                                <div class="whbmt_hotel_room_content">
+                                    <a href="<?php echo get_permalink( $post->ID ); ?>">
+                                        <h4><?php echo get_the_title( $post->ID );
+											?></h4></a>
+									<?php
+									$curr_args        = array(
+										'ex_tax_label' => false,
+										'currency'     => ''
+									);
+									$min_price_starts = get_post_meta( $post->ID, 'min_price_starts', true );
+									?>
+									<?php echo '<span>Price Starts From</span> ' . wc_price( $min_price_starts, $curr_args ) ?>
+                                    <a href="<?php get_permalink( $post->ID ); ?>">
+                                        <button class=" btn btn-default main_btn">Book Now</button>
+                                    </a>
                                 </div>
                             </div>
-                            <?php
-                        }
-                        wp_reset_postdata(); ?>
+                        </div>
+						<?php
+					}
+					?>
                 </div>
-	            <?php if ( $pagination == 'yes' ) { ?>
+				<?php if ( $pagination == 'yes' ) { ?>
                     <div class="row">
                         <div class="col-md-12"><?php
-				            $pargs = array(
-					            "current" => $paged,
-					            "total"   => $q->max_num_pages
-				            );
-				            echo "<div class='pagination-sec'>" . paginate_links( $pargs ) . "</div>";
-				            ?>
+							$pargs = array(
+								"current" => $paged,
+								"total"   => $q->max_num_pages
+							);
+							echo "<div class='pagination-sec'>" . paginate_links( $pargs ) . "</div>";
+							?>
                         </div>
                     </div>
-		            <?php
-	            }
-	            } else {
-		            _e( "<div class='row'><div class='col-md-12'><span class='hotel-no-result-msg' style='text-align:center;font-size:20px'>Sorry! No Hotel Found! </span></div></div>", "whbmt" );
-	            }
-	            ?>
+					<?php
+				}
+				} else {
+					_e( "<div class='row'><div class='col-md-12'><span class='hotel-no-result-msg' style='text-align:center;font-size:20px'>Sorry! No Hotel Found! </span></div></div>", "whbmt" );
+				}
+				?>
             </div>
         </section>
-
-
 
 
 		<?php

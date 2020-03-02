@@ -139,7 +139,7 @@ function whbmt_get_hotel_term_list_by_meta( $meta ) {
 			'fields'         => 'ids'
 		)
 	);
-	$city = array( '0' => __( 'Show All', '' ) );
+	$city = array( 'all' => __( 'Show All', 'whbmt' ) );
 	foreach ( $posts as $post ) {
 		$city[get_post_meta( $post, $meta, true )] = get_post_meta( $post, $meta, true );
 	}
@@ -203,6 +203,22 @@ function whbm_get_all_hotel_list(){
 	$list = array( '0' => __( 'Select Page', '' ) );
 	foreach ( $q->posts as $page ) {
 		$list[ $page->ID ] = $page->post_title;
+	}
+
+	return $list;
+}// end of
+
+function whbmt_get_tour_term_list_by_tax( $tax ) {
+
+	$terms = get_terms( array(
+		'taxonomy'   => $tax,
+		'hide_empty' => false,
+	) );
+
+	$list  = array( '0' => __( 'Show All', '' ) );
+
+	foreach ( $terms as $_term ) {
+		$list[ $_term->term_id ] = $_term->name;
 	}
 
 	return $list;

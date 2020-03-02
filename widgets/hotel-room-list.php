@@ -418,15 +418,15 @@ class HotelRoomlList extends Widget_Base {
                         <div class="title text-left">
                             <h1 <?php echo $this->get_render_attribute_string( 'title' ); ?>><?php echo $settings['title']; ?></h1>
                             <p <?php echo $this->get_render_attribute_string( 'description' ); ?>><?php echo $settings['description']; ?></p>
+
                         </div>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-12 col-sm-12">
-                        <div class="whbmt_traveller_carousel owl-carousel">
+                        <div class="whbmt_traveller_carousel">
 							<?php
-
 
 							$hotel_filter = $settings['room_filter_by_hotel'] && $settings['room_filter_by_hotel'] > 0 ? array(
 								'taxonomy' => 'hotel_details',
@@ -455,24 +455,33 @@ class HotelRoomlList extends Widget_Base {
 
 
 							$q            = new \WP_Query( $args );
+							//print_r('hello');
 							$count_result = $q->post_count;
+							//echo $count_result;
 							if ( $count_result > 0 ){
-							while ( $q->have_posts() ) {
-								$q->the_post();
-								echo $count_result;
+							foreach ($q->posts as $post) {
+								/*echo '<pre>';
+							    print_r($post->ID);
+							    echo '<pre>';*/
+
 								?>
                                 <div class="whbmt_single_traveller">
                                     <div class="whbmt_single_traveller_image">
-                                        <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail( 'large' ); ?></a>
+                                        <a href="<?php echo get_permalink($post->ID); ?>"><?php
+                                            echo get_the_post_thumbnail
+                                            ($post->ID, 'large' )
+                                            ; ?></a>
                                     </div>
                                     <div class="whbmt_single_traveller_content">
-                                        <a href="<?php the_permalink(); ?>"><h4><?php the_title(); ?></h4></a>
+                                        <a href="<?php echo get_permalink($post->ID); ?>"><h4><?php echo get_the_title
+                                                ($post->ID);
+                                        ?></h4></a>
                                         <span>766,256 Traveller Community</span>
                                     </div>
                                 </div>
 
 							<?php }
-							wp_reset_postdata();
+							//wp_reset_postdata();
 							?>
                         </div>
                     </div>

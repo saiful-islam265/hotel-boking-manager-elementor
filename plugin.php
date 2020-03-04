@@ -59,6 +59,7 @@ class HotelBookingHelperPlugin {
 		\Elementor\Plugin::instance()->widgets_manager->register_widget_type( new Widgets\HotelInfoImageRight() );
 		\Elementor\Plugin::instance()->widgets_manager->register_widget_type( new Widgets\HotelSubscriber() );
 		\Elementor\Plugin::instance()->widgets_manager->register_widget_type( new Widgets\HotelSearchForm() );
+		\Elementor\Plugin::instance()->widgets_manager->register_widget_type( new Widgets\HotelType() );
 	}
 	
 	public function __construct() {

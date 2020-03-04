@@ -401,7 +401,7 @@ class HotelRoomlList extends Widget_Base {
 	}
 
 	protected function render() {
-
+        global $magemain;
 		$settings = $this->get_settings_for_display();
 
 		$this->add_inline_editing_attributes( 'title', 'none' );
@@ -411,21 +411,17 @@ class HotelRoomlList extends Widget_Base {
 
 
         <!-- Featured-hotel section start -->
-        <section class="whbmt_traveller_community pad">
+        <section class="whbmt_hotel_room pad">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 col-lg-12">
                         <div class="title text-left">
                             <h1 <?php echo $this->get_render_attribute_string( 'title' ); ?>><?php echo $settings['title']; ?></h1>
-                            <p <?php echo $this->get_render_attribute_string( 'description' ); ?>><?php echo $settings['description']; ?></p>
-
                         </div>
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-12 col-sm-12">
-                        <div class="whbmt_traveller_carousel">
+                <div class="row ">
 							<?php
 
 							$hotel_filter = $settings['room_filter_by_hotel'] && $settings['room_filter_by_hotel'] > 0 ? array(
@@ -465,26 +461,27 @@ class HotelRoomlList extends Widget_Base {
 							    echo '<pre>';*/
 
 								?>
-                                <div class="whbmt_single_traveller">
-                                    <div class="whbmt_single_traveller_image">
-                                        <a href="<?php echo get_permalink($post->ID); ?>"><?php
-                                            echo get_the_post_thumbnail
-                                            ($post->ID, 'large' )
+                                <div class="col-md-3 col-sm-4">
+                                <div class="whbmt_single_hotel_room">
+                                    <a href="<?php echo get_permalink($post->ID); ?>">
+                                    <div class="whbmt_single_hotel_room_image">
+                                        <a href="<?php echo get_permalink($post->ID); ?>"><?php echo
+                                            get_the_post_thumbnail($post->ID, 'large' )
                                             ; ?></a>
                                     </div>
-                                    <div class="whbmt_single_traveller_content">
-                                        <a href="<?php echo get_permalink($post->ID); ?>"><h4><?php echo get_the_title
-                                                ($post->ID);
-                                        ?></h4></a>
-                                        <span>766,256 Traveller Community</span>
+                                    </a>
+                                    <div class="whbmt_hotel_room_content">
+                                        <a href="<?php echo get_permalink($post->ID); ?>"><h4><?php echo get_the_title($post->ID)?></h4></a>
+                                        <span><?php echo $magemain->get_room_price( $post->ID ); ?>/Per Night</span>
+                                        <button class=" btn btn-default main_btn">Book Now</button>
                                     </div>
+                                </div>
                                 </div>
 
 							<?php }
 							//wp_reset_postdata();
 							?>
-                        </div>
-                    </div>
+
                 </div>
 				<?php if ( $pagination == 'yes' ) { ?>
                     <div class="row">

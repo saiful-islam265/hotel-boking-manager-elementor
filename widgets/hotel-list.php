@@ -443,6 +443,8 @@ class HotelList extends Widget_Base {
                 <div class="row">
 					<?php
 
+                   // echo $settings['hotel_filter_by_hotel_type'];
+
 					$city_filter = $settings['hotel_filter_by_city'] == 0 ? array(
 						'key'     => 'city',
 						'value'   => $settings['hotel_filter_by_city'],
@@ -452,16 +454,18 @@ class HotelList extends Widget_Base {
 					//print_r($city_filter);
 
 					$country_filter = $settings['hotel_filter_by_country'] && $settings['hotel_filter_by_country'] > 0 ? array(
-						'key' => 'country',
-						'value'    => $settings['hotel_filter_by_country'],
+						'key'     => 'country',
+						'value'   => $settings['hotel_filter_by_country'],
 						'compare' => 'LIKE'
 					) : '';
 
 
 					$hotel_type = $settings['hotel_filter_by_hotel_type'] && $settings['hotel_filter_by_hotel_type'] > 0 ? array(
-						'taxonomy' => 'hotel_types',
-						'field'    => 'term_id',
-						'terms'    => $settings['hotel_filter_by_hotel_type']
+                        'taxonomy' => 'mage_hotel_type',
+                        'field'    => 'term_id',
+                        'terms'    => $settings['hotel_filter_by_hotel_type'],
+                        'operator'  => 'IN'
+
 					) : '';
 
 
@@ -473,7 +477,7 @@ class HotelList extends Widget_Base {
 					if ( $settings['hotel_filter_by_city'] == 'all' ) {
 						$args = array(
 							'post_type'      => 'mage_hotel',
-							'posts_per_page' => -1,
+							'posts_per_page' => - 1,
 						);
 					} else {
 						$args = array(
@@ -486,21 +490,16 @@ class HotelList extends Widget_Base {
 									'key'     => 'city',
 									'value'   => $settings['hotel_filter_by_city'],
 									'compare' => 'LIKE'
-                                ),
-                                array(
-	                                'key' => 'country',
-	                                'value'    => $settings['hotel_filter_by_country'],
-	                                'compare' => 'LIKE'
-                                )
+								),
+								array(
+									'key'     => 'country',
+									'value'   => $settings['hotel_filter_by_country'],
+									'compare' => 'LIKE'
+								)
 							),
-                            'tax_query'         => array(
-							$city_filter,
-							$country_filter,
-							$hotel_filter,
-							$hotel_type,
-							$hotel_package,
-							$tour_type
-						)
+							'tax_query'      => array(
+								$hotel_type
+							)
 						);
 					}
 
